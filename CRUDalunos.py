@@ -104,7 +104,10 @@ def switch_case(option):
       return False
 
     case '4':  # Delete
-      register = input('Type the register of the student you want to delete: ')
+      register = input('Type the register of the student you want to delete or EXIT '
+                      'to return: ')
+      if (register == 'EXIT'):
+        return False
       clearS()
       remove_student(students, register)
       clearS()
