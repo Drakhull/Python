@@ -1,6 +1,9 @@
 import os
 from datetime import datetime, timedelta
 
+# f'({self.day:0>2}/{self.month:0>2}/{self.year})'
+month_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+
 current_date = datetime.now()
 
 class dateOfBirth:
@@ -14,7 +17,7 @@ class dateOfBirth:
     age = current_date.year - self.year - ((current_date.month, current_date.day) < 
                                            (self.month, self.day))
     return age
-
+    
 
 class Student:
   def __init__(self, name = 'Missing info', register = 'Missing info', 
@@ -45,25 +48,25 @@ students = []
 
 # Menus
 def menu():
-  print("0 - Exit")
-  print("1 - Create Student")
-  print("2 - Read Students")
-  print("3 - Update Student")
-  print("4 - Delete Student")
+  print('(0) - Exit')
+  print('(1) - Create Student')
+  print('(2) - Read Students')
+  print('(3) - Update Student')
+  print('(4) - Delete Student')
 
-  return input("Your choice: ")
+  return input('Your choice: ')
 
 
 def menu_update():
-  print("What do you want to update?")
-  print("0 - Exit")
-  print("1 - Name")
-  print("2 - Birth")
-  print("3 - Gender")
-  print("4 - Register")
-  print("5 - CPF")
-  print("6 - All")
-  option = input("Your choice: ")
+  print('What do you want to update?')
+  print('(0) - Exit')
+  print('(1) - Name')
+  print('2 - Birth')
+  print('3 - Gender')
+  print('4 - Register')
+  print('5 - CPF')
+  print('6 - All')
+  option = input('Your choice: ')
   return option
 
 
@@ -124,6 +127,16 @@ def QUIT(variable):
     return True
   return False
 
+
+# Function to validate date format
+def is_valid_date_format(date_string):
+    try:
+        datetime.strptime(date_string, '%d/%m/%Y')
+        return True
+    except ValueError:
+        return False
+
+
 def create_student(students):
   global aCad
   EXIT = False
@@ -136,13 +149,35 @@ def create_student(students):
   EXIT = QUIT(NAME)
   if (EXIT):
     return 0
+    
+  # while (True):
+  #   if (NAME.):
+  #   break
   # Validations here
 
   BIRTH = input('Date of Birth(DD/MM/YYYY): ')
-  EXIT = QUIT(BIRTH)
-  if (EXIT):
+  if QUIT(BIRTH):
     return 0
-  BIRTH = datetime.strptime(BIRTH, '%d/%m/%Y')
+
+  is_valid_date = False
+  while not is_valid_date:
+      if not is_valid_date_format(BIRTH):
+          print('Invalid date format!')
+          BIRTH = input('Type again (DD/MM/YYYY): ')
+          if QUIT(BIRTH):
+              exit(0)
+      else:
+          BIRTH = datetime.strptime(BIRTH, '%d/%m/%Y').date()
+  
+          if not valid_date(BIRTH.year, BIRTH.month, BIRTH.day):
+              print('Invalid date!')
+              BIRTH = input('Type again (DD/MM/YYYY): ')
+              if QUIT(BIRTH):
+                  exit(0)
+          else:
+              is_valid_date = True
+        
+    
   # Validations here
 
   REGISTER = input('Register: ')
@@ -267,10 +302,10 @@ def print_students(students):
     while(i < aCad):
       print(f'Student {i+1}')
       students[i].show()
-      print('\n')
+      print('=' * 20)
       i += 1
 
-  input('Press enter to continue...')
+  pressEnter()
 
 
 def remove_student(students, register):
@@ -295,6 +330,21 @@ def remove_student(students, register):
   else:
     print(f'Student {name_copy} deleted!')
     pressEnter()
+    
+
+# Function to validate date
+def valid_date(BIRTH_year, BIRTH_month, BIRTH_day):
+  if BIRTH_year > current_date.year or BIRTH_year < current_date.year - 120:
+    return False
+  elif BIRTH_month < 1 or BIRTH_month > 12:
+    return False
+  elif BIRTH_day > month_days[BIRTH_month + 1] or BIRTH_day < 1:
+    return False
+  elif (BIRTH_year % 4 != 0 and BIRTH_year != 2000) and BIRTH_month == 2 and BIRTH_day == 29:
+    return False
+
+  return True
+
 
 # Press enter key to wait for 
 def pressEnter():
@@ -303,7 +353,7 @@ def pressEnter():
 
 # Clear the screen
 def clearS():
-  os.system("clear")
+  os.system('clear')
 
 ############# Functions #############
 
