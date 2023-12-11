@@ -182,7 +182,8 @@ def get_valid_date():
 
 
 # Name validation
-def valid_name(NAME, autocorrect):
+def valid_name(NAME):
+  autocorrect = True
   print(f'Your name: {NAME}')
   answer = input('Is your name correct?(y/n): ')
   answer = answer.upper()
@@ -203,25 +204,31 @@ def valid_name(NAME, autocorrect):
 
     if autocorrect:
       NAME = NAME.title()
-    valid_name(NAME, autocorrect)
+    valid_name(NAME)
       
   elif answer != 'Y':
     print('Invalid input!')
     pressEnter()
-    valid_name(NAME, autocorrect)
+    valid_name(NAME)
 
   return NAME
 
 
 # Register validation
-def get_valid_register():
+def get_valid_register(students):
   while True:
       REGISTER = input('Register: ')
       if QUIT(REGISTER):
           return None
 
+      if any(student.register == REGISTER for student in students):
+        print('Invalid input. Register already exists or does not have '
+              '11 numeric characters.')
+        continue
+        
       if len(REGISTER) == 11 and REGISTER.isnumeric():
           return REGISTER
+
       else:
           print('Invalid input. Please enter a numeric register with '
                 '11 characters.')
@@ -242,6 +249,25 @@ def get_valid_gender():
         print('Invalid input. Only Masculine, Female and Neutral.')
 
 
+# CPF validation
+def get_valid_cpf(students):
+  while True:
+    CPF = input('CPF (only numbers): ')
+    if len(CPF) != 11:
+      print('Invalid CPF. Try again')
+      continue
+
+    if not CPF.isnumeric():
+      print('Invalid CPF. Try again')
+      continue
+
+    if any(student.cpf == CPF for student in students):
+      print('Invalid CPF. Try again')
+      continue
+      
+    return CPF
+    
+
 def create_student(students):
   global aCad
   print('-' * 10,'Create Student', '-' * 10)
@@ -250,19 +276,17 @@ def create_student(students):
   NAME = input('Name: ')
   if QUIT(NAME):
     return 0
-
+    
   NAME = NAME.title()
-  autocorrect = True
-  NAME = valid_name(NAME, autocorrect)
+  NAME = valid_name(NAME)
 
-  # Get the first input
-  # Check if the user wants to leave
   
   BIRTH = get_valid_date()
   if QUIT(BIRTH):
     return 0
 
-  REGISTER = get_valid_register()
+  
+  REGISTER = get_valid_register(students)
   if QUIT(REGISTER):
     return 0
   
@@ -272,17 +296,9 @@ def create_student(students):
     return 0
   
 
-  CPF = input('CPF without formatting: ')
+  CPF = get_valid_cpf(students)
   if QUIT(CPF):
     return 0
-
-  # if len(REGISTER) < 11:
-
-  # if not CPF.isnumeric():
-
-  # if CPF in students.cpf:
-
-  
     
   # Validations here
 
@@ -329,32 +345,47 @@ def change_data(students, i):
     case '1': # Name
       clearS()
       NAME = input('Name: ')
+      if QUIT(NAME):
+        return 0
+
+      NAME = NAME.title()
+      NAME = valid_name(NAME)
       students[i].name = NAME
       return
 
     case '2': # Birth
       clearS()
-      BIRTH = input('Date of Birth(DD/MM/YYYY): ')
+      BIRTH = get_valid_date()
+      if QUIT(BIRTH):
+        return
+      ################## ISSO PODE DAR PROBLEMA VERIFICAR DEPOIS ##################
       BIRTH = datetime.strptime(BIRTH, '%d/%m/%Y')
       students[i].birth = dateOfBirth(BIRTH.day, BIRTH.month, 
       BIRTH.year, BIRTH)
+      ################## ISSO PODE DAR PROBLEMA VERIFICAR DEPOIS ##################
       return
 
     case '3': # Gender
       clearS()
-      GENDER = input('Gender (M/F/N): ')
+      GENDER = get_valid_gender()
+      if QUIT(GENDER):
+        return
       students[i].gender = GENDER
       return
 
     case '4': # Register
       clearS()
-      REGISTER = input('Register: ')
+      REGISTER = get_valid_register(students)
+      if QUIT(REGISTER):
+          return
       students[i].register = REGISTER
       return
 
     case '5': # CPF
       clearS()
-      CPF = input('CPF: ')
+      CPF = get_valid_cpf(students)
+      if QUIT(CPF):
+        return
       students[i].cpf = CPF
 
       return
@@ -362,20 +393,33 @@ def change_data(students, i):
     case '6': # All
       clearS()
       NAME = input('Name: ')
+      if QUIT(NAME):
+        return 0
+
+      NAME = NAME.title()
+      NAME = valid_name(NAME)
       students[i].name = NAME
 
       BIRTH = input('Date of Birth(DD/MM/YYYY): ')
       BIRTH = datetime.strptime(BIRTH, '%d/%m/%Y')
+      if QUIT(BIRTH):
+        return
       students[i].birth = dateOfBirth(BIRTH.day, BIRTH.month, 
       BIRTH.year, BIRTH)
 
-      GENDER = input('Gender (M/F/N): ')
+      GENDER = get_valid_gender()
+      if QUIT(GENDER):
+        return
       students[i].gender = GENDER
 
-      REGISTER = input('Register (M/F/N): ')
+      REGISTER = get_valid_register(students)
+      if QUIT(REGISTER):
+        return
       students[i].register = REGISTER
 
-      CPF = input('CPF: ')
+      CPF = get_valid_cpf(students)
+      if QUIT(CPF):
+        return
       students[i].cpf = CPF
       return
 
