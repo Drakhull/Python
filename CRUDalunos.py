@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 # f'({self.day:0>2}/{self.month:0>2}/{self.year})'
-month_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+month_days = (0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 current_date = datetime.now()
 
@@ -123,10 +123,15 @@ def switch_case(option):
 
 # Creates and validate the student
 def QUIT(variable):
-  if (variable == 'EXIT'):
+  if variable == None:
     return True
+  if isinstance(variable, str):
+    variable = variable.upper()
+    if (variable == 'EXIT'):
+      return True
   return False
 
+##### Date validation #####
 
 # Function to validate date format
 def is_valid_date_format(date_string):
@@ -137,65 +142,148 @@ def is_valid_date_format(date_string):
         return False
 
 
-def create_student(students):
-  global aCad
-  EXIT = False
-  print('-' * 10,'Create Student', '-' * 10)
-  print('' * 6, 'Type EXIT in any place to return', '' * 6)
+# Function to validate date
+def valid_date(BIRTH_year, BIRTH_month, BIRTH_day):
+  if BIRTH_year > current_date.year or BIRTH_year < current_date.year - 120:
+    return False
+  elif BIRTH_month < 1 or BIRTH_month > 12:
+    return False
+  elif BIRTH_day > month_days[BIRTH_month] or BIRTH_day < 1:
+    return False
+  elif (BIRTH_year % 4 != 0 and BIRTH_year != 2000) and BIRTH_month == 2 and BIRTH_day == 29:
+    return False
 
-  # Valid = 0
+  return True
 
-  NAME = input('Name: ')
-  EXIT = QUIT(NAME)
-  if (EXIT):
-    return 0
-    
-  # while (True):
-  #   if (NAME.):
-  #   break
-  # Validations here
 
+# Complete date validation
+def get_valid_date():
   BIRTH = input('Date of Birth(DD/MM/YYYY): ')
-  if QUIT(BIRTH):
-    return 0
-
   is_valid_date = False
   while not is_valid_date:
       if not is_valid_date_format(BIRTH):
           print('Invalid date format!')
           BIRTH = input('Type again (DD/MM/YYYY): ')
           if QUIT(BIRTH):
-              exit(0)
+              return None
       else:
           BIRTH = datetime.strptime(BIRTH, '%d/%m/%Y').date()
-  
+
           if not valid_date(BIRTH.year, BIRTH.month, BIRTH.day):
               print('Invalid date!')
               BIRTH = input('Type again (DD/MM/YYYY): ')
               if QUIT(BIRTH):
-                  exit(0)
+                  return None
           else:
               is_valid_date = True
-        
+              return BIRTH
+
+##### Date validation #####
+
+
+# Name validation
+def valid_name(NAME, autocorrect):
+  print(f'Your name: {NAME}')
+  answer = input('Is your name correct?(y/n): ')
+  answer = answer.upper()
+  if answer == 'N':
+    answer = input('Do you want to deactivate the autocorrect?(y/n): ')
+    answer = answer.upper()
+    if answer == 'N':
+      autocorrect = True
+      NAME = input('Type your name again: ')
+      
+    elif answer == 'Y':
+      autocorrect = False
+      NAME = input('Type your name again: ')
     
-  # Validations here
+    else:
+      print('Invalid input!')
+      pressEnter()
 
-  REGISTER = input('Register: ')
-  EXIT = QUIT(REGISTER)
-  if (EXIT):
-    return 0
-  # Validations here
+    if autocorrect:
+      NAME = NAME.title()
+    valid_name(NAME, autocorrect)
+      
+  elif answer != 'Y':
+    print('Invalid input!')
+    pressEnter()
+    valid_name(NAME, autocorrect)
 
-  GENDER = input('Gender (M/F/N): ')
-  EXIT = QUIT(GENDER)
-  if (EXIT):
-    return 0
-  # Validations here
+  return NAME
 
-  CPF = input('CPF: ')
-  EXIT = QUIT(CPF)
-  if (EXIT):
+
+# Register validation
+def get_valid_register():
+  while True:
+      REGISTER = input('Register: ')
+      if QUIT(REGISTER):
+          return None
+
+      if len(REGISTER) == 11 and REGISTER.isnumeric():
+          return REGISTER
+      else:
+          print('Invalid input. Please enter a numeric register with '
+                '11 characters.')
+
+
+# Gender validation
+def get_valid_gender():
+  while True:
+    GENDER = input('Gender (M/F/N): ')
+    if QUIT(GENDER):
+        return None
+
+    GENDER = GENDER.upper()
+    if GENDER in ['M', 'F', 'N']:
+      return GENDER
+      
+    else:
+        print('Invalid input. Only Masculine, Female and Neutral.')
+
+
+def create_student(students):
+  global aCad
+  print('-' * 10,'Create Student', '-' * 10)
+  print('' * 6, 'Type EXIT in any option to return', '' * 6)
+
+  NAME = input('Name: ')
+  if QUIT(NAME):
     return 0
+
+  NAME = NAME.title()
+  autocorrect = True
+  NAME = valid_name(NAME, autocorrect)
+
+  # Get the first input
+  # Check if the user wants to leave
+  
+  BIRTH = get_valid_date()
+  if QUIT(BIRTH):
+    return 0
+
+  REGISTER = get_valid_register()
+  if QUIT(REGISTER):
+    return 0
+  
+
+  GENDER = get_valid_gender()
+  if QUIT(GENDER):
+    return 0
+  
+
+  CPF = input('CPF without formatting: ')
+  if QUIT(CPF):
+    return 0
+
+  # if len(REGISTER) < 11:
+
+  # if not CPF.isnumeric():
+
+  # if CPF in students.cpf:
+
+  
+    
   # Validations here
 
   new_student = Student(NAME, REGISTER, CPF, GENDER, BIRTH.day, BIRTH.month, 
@@ -330,20 +418,6 @@ def remove_student(students, register):
   else:
     print(f'Student {name_copy} deleted!')
     pressEnter()
-    
-
-# Function to validate date
-def valid_date(BIRTH_year, BIRTH_month, BIRTH_day):
-  if BIRTH_year > current_date.year or BIRTH_year < current_date.year - 120:
-    return False
-  elif BIRTH_month < 1 or BIRTH_month > 12:
-    return False
-  elif BIRTH_day > month_days[BIRTH_month + 1] or BIRTH_day < 1:
-    return False
-  elif (BIRTH_year % 4 != 0 and BIRTH_year != 2000) and BIRTH_month == 2 and BIRTH_day == 29:
-    return False
-
-  return True
 
 
 # Press enter key to wait for 
