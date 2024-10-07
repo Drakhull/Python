@@ -217,21 +217,15 @@ def valid_name(NAME):
 # Register validation
 def get_valid_register(students):
   while True:
-      REGISTER = input('Register: ')
-      if QUIT(REGISTER):
+      register = input('Register: ')
+      if QUIT(register):
           return None
-
-      if any(student.register == REGISTER for student in students):
-        print('Invalid input. Register already exists or does not have '
-              '11 numeric characters.')
-        continue
-        
-      if len(REGISTER) == 11 and REGISTER.isnumeric():
-          return REGISTER
-
+      
+      if len(register) != 11 or not register.isnumeric() or any(student.register == register for student in students):
+          print('Invalid input. Register must be 11 digits and unique.')
       else:
-          print('Invalid input. Please enter a numeric register with '
-                '11 characters.')
+          return register
+
 
 
 # Gender validation
@@ -358,11 +352,10 @@ def change_data(students, i):
       BIRTH = get_valid_date()
       if QUIT(BIRTH):
         return
-      ################## ISSO PODE DAR PROBLEMA VERIFICAR DEPOIS ##################
+      # VERIFICAR DEPOIS #
       BIRTH = datetime.strptime(BIRTH, '%d/%m/%Y')
       students[i].birth = dateOfBirth(BIRTH.day, BIRTH.month, 
       BIRTH.year, BIRTH)
-      ################## ISSO PODE DAR PROBLEMA VERIFICAR DEPOIS ##################
       return
 
     case '3': # Gender
